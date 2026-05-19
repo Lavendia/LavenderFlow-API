@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     public DbSet<Workspace> Workspaces { get; set; }
     public DbSet<Board> Boards { get; set; }
     public DbSet<ListItem> ListItems { get; set; }
+    public DbSet<Card> Cards { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,6 +26,12 @@ public class AppDbContext : DbContext
             .HasOne(l => l.Board)
             .WithMany()
             .HasForeignKey(l => l.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Card>()
+            .HasOne(c => c.ListItem)
+            .WithMany()
+            .HasForeignKey(c => c.ListItemId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 
