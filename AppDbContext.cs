@@ -6,6 +6,7 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Workspace> Workspaces { get; set; }
+    public DbSet<Board> Boards { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
