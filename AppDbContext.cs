@@ -10,6 +10,8 @@ public class AppDbContext : DbContext
     public DbSet<ListItem> ListItems { get; set; }
     public DbSet<Card> Cards { get; set; }
 
+    public DbSet<CardAssignment> CardAssignments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
@@ -32,6 +34,21 @@ public class AppDbContext : DbContext
             .HasOne(c => c.ListItem)
             .WithMany()
             .HasForeignKey(c => c.ListItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasKey(ca => new { ca.UserId, ca.CardId }); // composite PK
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasOne(ca => ca.User)
+            .WithMany()
+            .HasForeignKey(ca => ca.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasOne(ca => ca.Card)
+            .WithMany()
+            .HasForeignKey(ca => ca.CardId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 
