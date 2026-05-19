@@ -28,6 +28,10 @@ public class ListItemsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateListItem([FromBody] CreateListItemRequest request)
     {
+        if (await _context.Boards.FindAsync(request.BoardId) is null)
+        {
+            return NotFound("Board does not exist with id " + request.BoardId);
+        }
         var listItem = new ListItem(request.Name, request.Order, request.BoardId);
         _context.ListItems.Add(listItem);
         await _context.SaveChangesAsync();

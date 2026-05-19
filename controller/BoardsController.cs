@@ -28,7 +28,11 @@ public class BoardsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateBoard([FromBody] CreateBoardRequest request)
     {
-        var board = new Board(request.Name, request.Description, request.WorkspaceID);
+        if (await _context.Workspaces.FindAsync(request.WorkspaceId) is null)
+        {
+            return NotFound("Worspace does not exist with id " + request.WorkspaceId);
+        }
+        var board = new Board(request.Name, request.Description, request.WorkspaceId);
         _context.Boards.Add(board);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetBoard), new { id = board.Id }, board);
