@@ -7,11 +7,12 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Workspace> Workspaces { get; set; }
     public DbSet<Board> Boards { get; set; }
+    public DbSet<BoardRole> BoardRoles { get; set; }
+    public DbSet<BoardUser> BoardUsers { get; set; }
     public DbSet<ListItem> ListItems { get; set; }
     public DbSet<Card> Cards { get; set; }
     public DbSet<Checklist> Checklists { get; set; }
     public DbSet<ChecklistItem> ChecklistItems { get; set; }
-
     public DbSet<CardAssignment> CardAssignments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,6 +21,26 @@ public class AppDbContext : DbContext
             .HasIndex(u => u.Email)
             .IsUnique();
 
+        modelBuilder.Entity<BoardUser>()
+            .HasKey(bu => new { bu.UserId, bu.BoardId });
+
+        modelBuilder.Entity<BoardUser>()
+            .HasOne(bu => bu.User)
+            .WithMany()
+            .HasForeignKey(bu => bu.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<BoardUser>()
+            .HasOne(bu => bu.Board)
+            .WithMany()
+            .HasForeignKey(bu => bu.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<BoardUser>()
+            .HasOne(bu => bu.BoardRole)
+            .WithMany()
+            .HasForeignKey(bu => bu.BoardRoleId)
+            .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<Board>()
             .HasOne(b => b.Workspace)
             .WithMany()
