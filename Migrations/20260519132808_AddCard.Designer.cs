@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LavenderFlow_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260519132808_AddCard")]
+    partial class AddCard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,9 +83,6 @@ namespace LavenderFlow_API.Migrations
                     b.Property<int>("ListItemId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ListItemId1")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -97,92 +97,7 @@ namespace LavenderFlow_API.Migrations
 
                     b.HasIndex("ListItemId");
 
-                    b.HasIndex("ListItemId1");
-
                     b.ToTable("Cards");
-                });
-
-            modelBuilder.Entity("CardAssignment", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CardId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "CardId");
-
-                    b.HasIndex("CardId");
-
-                    b.ToTable("CardAssignments");
-            modelBuilder.Entity("Checklist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CardId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("CardId1")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CardId");
-
-                    b.HasIndex("CardId1");
-
-                    b.ToTable("Checklists");
-                });
-
-            modelBuilder.Entity("ChecklistItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChecklistId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Finished")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChecklistId");
-
-                    b.ToTable("ChecklistItems");
                 });
 
             modelBuilder.Entity("ListItem", b =>
@@ -194,9 +109,6 @@ namespace LavenderFlow_API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BoardId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("BoardId1")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
@@ -215,8 +127,6 @@ namespace LavenderFlow_API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BoardId");
-
-                    b.HasIndex("BoardId1");
 
                     b.ToTable("ListItems");
                 });
@@ -307,48 +217,7 @@ namespace LavenderFlow_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ListItem", null)
-                        .WithMany("Cards")
-                        .HasForeignKey("ListItemId1");
-
                     b.Navigation("ListItem");
-                });
-                
-            modelBuilder.Entity("Checklist", b =>
-                {
-                    b.HasOne("Card", "Card")
-                        .WithMany()
-                        .HasForeignKey("CardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                }
-            modelBuilder.Entity("CardAssignment", b =>
-                {
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Card");
-
-                    b.Navigation("User");
-                    b.HasOne("Card", null)
-                        .WithMany("Checklists")
-                        .HasForeignKey("CardId1");
-
-                    b.Navigation("Card");
-                });
-
-            modelBuilder.Entity("ChecklistItem", b =>
-                {
-                    b.HasOne("Checklist", "Checklist")
-                        .WithMany("Items")
-                        .HasForeignKey("ChecklistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Checklist");
                 });
 
             modelBuilder.Entity("ListItem", b =>
@@ -359,31 +228,7 @@ namespace LavenderFlow_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Board", null)
-                        .WithMany("ListItems")
-                        .HasForeignKey("BoardId1");
-
                     b.Navigation("Board");
-                });
-
-            modelBuilder.Entity("Board", b =>
-                {
-                    b.Navigation("ListItems");
-                });
-
-            modelBuilder.Entity("Card", b =>
-                {
-                    b.Navigation("Checklists");
-                });
-
-            modelBuilder.Entity("Checklist", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("ListItem", b =>
-                {
-                    b.Navigation("Cards");
                 });
 
             modelBuilder.Entity("Workspace", b =>

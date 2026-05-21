@@ -8,6 +8,11 @@ public class AppDbContext : DbContext
     public DbSet<Workspace> Workspaces { get; set; }
     public DbSet<Board> Boards { get; set; }
     public DbSet<ListItem> ListItems { get; set; }
+    public DbSet<Card> Cards { get; set; }
+    public DbSet<Checklist> Checklists { get; set; }
+    public DbSet<ChecklistItem> ChecklistItems { get; set; }
+
+    public DbSet<CardAssignment> CardAssignments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,6 +30,37 @@ public class AppDbContext : DbContext
             .HasOne(l => l.Board)
             .WithMany()
             .HasForeignKey(l => l.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Card>()
+            .HasOne(c => c.ListItem)
+            .WithMany()
+            .HasForeignKey(c => c.ListItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasKey(ca => new { ca.UserId, ca.CardId }); // composite PK
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasOne(ca => ca.User)
+            .WithMany()
+            .HasForeignKey(ca => ca.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasOne(ca => ca.Card)
+            .WithMany()
+            .HasForeignKey(ca => ca.CardId)
+        modelBuilder.Entity<Checklist>()
+            .HasOne(c => c.Card)
+            .WithMany()
+            .HasForeignKey(c => c.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChecklistItem>()
+            .HasOne(ci => ci.Checklist)
+            .WithMany(c => c.Items)
+            .HasForeignKey(ci => ci.ChecklistId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 
