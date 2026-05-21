@@ -9,7 +9,7 @@ public class ListItem : BaseEntity
     public int BoardId { get; set; }
     public Board? Board { get; set; }
 
-    public List<Card>? Cards { get; set; }
+    public List<Card> Cards { get; set; } = new();
     public ListItem() { }
 
     [SetsRequiredMembers]
