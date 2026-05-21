@@ -12,6 +12,8 @@ public class AppDbContext : DbContext
     public DbSet<Checklist> Checklists { get; set; }
     public DbSet<ChecklistItem> ChecklistItems { get; set; }
 
+    public DbSet<CardAssignment> CardAssignments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
@@ -36,6 +38,19 @@ public class AppDbContext : DbContext
             .HasForeignKey(c => c.ListItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<CardAssignment>()
+            .HasKey(ca => new { ca.UserId, ca.CardId }); // composite PK
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasOne(ca => ca.User)
+            .WithMany()
+            .HasForeignKey(ca => ca.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardAssignment>()
+            .HasOne(ca => ca.Card)
+            .WithMany()
+            .HasForeignKey(ca => ca.CardId)
         modelBuilder.Entity<Checklist>()
             .HasOne(c => c.Card)
             .WithMany()
