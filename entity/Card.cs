@@ -12,6 +12,8 @@ public class Card : BaseEntity
     public int ListItemId { get; set; }
     public ListItem? ListItem { get; set; }
 
+    public List<Checklist> Checklists { get; set; } = new();
+
     public Card() {}
 
     [SetsRequiredMembers]

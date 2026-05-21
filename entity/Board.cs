@@ -9,7 +9,7 @@ public class Board : BaseEntity
     public int WorkspaceId { get; set; }
     public Workspace? Workspace { get; set; }
 
-    public List<ListItem>? ListItems { get; set; }
+    public List<ListItem> ListItems { get; set; } = new();
 
     public Board() {}
 

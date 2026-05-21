@@ -9,6 +9,8 @@ public class AppDbContext : DbContext
     public DbSet<Board> Boards { get; set; }
     public DbSet<ListItem> ListItems { get; set; }
     public DbSet<Card> Cards { get; set; }
+    public DbSet<Checklist> Checklists { get; set; }
+    public DbSet<ChecklistItem> ChecklistItems { get; set; }
 
     public DbSet<CardAssignment> CardAssignments { get; set; }
 
@@ -49,6 +51,16 @@ public class AppDbContext : DbContext
             .HasOne(ca => ca.Card)
             .WithMany()
             .HasForeignKey(ca => ca.CardId)
+        modelBuilder.Entity<Checklist>()
+            .HasOne(c => c.Card)
+            .WithMany()
+            .HasForeignKey(c => c.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChecklistItem>()
+            .HasOne(ci => ci.Checklist)
+            .WithMany(c => c.Items)
+            .HasForeignKey(ci => ci.ChecklistId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 
