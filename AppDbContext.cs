@@ -73,7 +73,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CardAssignment>()
             .HasOne(ca => ca.Card)
             .WithMany()
-            .HasForeignKey(ca => ca.CardId)
+            .HasForeignKey(ca => ca.CardId);
         modelBuilder.Entity<Checklist>()
             .HasOne(c => c.Card)
             .WithMany()
