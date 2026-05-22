@@ -25,7 +25,7 @@ public class CardAssignmentsController : ControllerBase
             .Include(ca => ca.User)
             .ToListAsync();
 
-        return Ok(assignments);
+        return Ok(assignments.Select(a => new CardAssignmentResponse(a)));
     }
 
     [Authorize]
@@ -41,7 +41,7 @@ public class CardAssignmentsController : ControllerBase
         var assignment = new CardAssignment(request.UserId, request.CardId);
         _context.CardAssignments.Add(assignment);
         await _context.SaveChangesAsync();
-        return Ok(assignment);
+        return Ok(new CardAssignmentResponse(assignment));
     }
 
     [Authorize]

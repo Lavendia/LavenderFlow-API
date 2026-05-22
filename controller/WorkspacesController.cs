@@ -17,7 +17,7 @@ public class WorkspacesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetWorkspaces()
     {
-        return Ok(await _context.Workspaces.ToListAsync());
+        return Ok((await _context.Workspaces.ToListAsync()).Select(w => new WorkspaceResponse(w)));
     }
 
     [Authorize]
@@ -25,7 +25,7 @@ public class WorkspacesController : ControllerBase
     public async Task<IActionResult> GetWorkspace(int id)
     {
         var workspace = await _context.Workspaces.FindAsync(id);
-        return workspace is null ? NotFound() : Ok(workspace);
+        return workspace is null ? NotFound() : Ok(new WorkspaceResponse(workspace));
     }
 
     [Authorize]
@@ -35,7 +35,7 @@ public class WorkspacesController : ControllerBase
         var workspace = new Workspace(request.Name, request.Description);
         _context.Workspaces.Add(workspace);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetWorkspace), new { id = workspace.Id }, workspace);
+        return CreatedAtAction(nameof(GetWorkspace), new { id = workspace.Id }, new WorkspaceResponse(workspace));
     }
 
     [Authorize]
