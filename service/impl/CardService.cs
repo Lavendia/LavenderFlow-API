@@ -1,14 +1,19 @@
+using Microsoft.AspNetCore.SignalR;
+
 public class CardService : ICardService
 {
     private readonly ICardRepository _repository;
     private readonly IListItemRepository _listItemRepository;
+    private readonly IHubContext<LavenderFlowHub> _hub;
 
     public CardService(
         ICardRepository repository,
-        IListItemRepository listItemRepository)
+        IListItemRepository listItemRepository,
+        IHubContext<LavenderFlowHub> hub)
     {
         _repository = repository;
         _listItemRepository = listItemRepository;
+        _hub = hub;
     }
 
     public async Task<IEnumerable<CardResponse>> GetCardsAsync()
@@ -25,13 +30,19 @@ public class CardService : ICardService
 
     public async Task<CardResponse?> CreateCardAsync(CreateCardRequest request)
     {
-        if (await _listItemRepository.GetByIdAsync(request.ListItemId) is null)
+        var listItem = await _listItemRepository.GetByIdAsync(request.ListItemId);
+
+        if (listItem == null)
             return null;
 
         var card = new Card(request.Name, request.Order, request.Description, false, request.Deadline, request.ListItemId);
         _repository.Add(card);
         await _repository.SaveAsync();
-        return new CardResponse(card);
+        var response = new CardResponse(card);
+
+        await _hub.Clients.Group(listItem.BoardId.ToString()).SendAsync("CardCreated", response);
+
+        return response;
     }
 
     public async Task<CardResponse?> UpdateCardAsync(int id, UpdateCardRequest request)
@@ -40,9 +51,12 @@ public class CardService : ICardService
         if (card == null)
             return null;
 
+        ListItem? listItem = null;
+
         if (request.ListItemId is not null)
         {
-            if (await _listItemRepository.GetByIdAsync(request.ListItemId.Value) is null)
+            listItem = await _listItemRepository.GetByIdAsync(request.ListItemId.Value);
+            if (listItem is null)
                 throw new KeyNotFoundException("ListItem does not exist with id " + request.ListItemId.Value);
             card.ListItemId = request.ListItemId.Value;
         }
@@ -52,9 +66,13 @@ public class CardService : ICardService
         if (request.Description is not null) card.Description = request.Description;
         if (request.Archived is not null) card.Archived = request.Archived.Value;
         if (request.Deadline is not null) card.Deadline = request.Deadline.Value;
-
         await _repository.SaveAsync();
-        return new CardResponse(card);
+
+        var response = new CardResponse(card);
+        listItem ??= await _listItemRepository.GetByIdAsync(card.ListItemId);
+        await _hub.Clients.Group(listItem!.BoardId.ToString()).SendAsync("CardUpdated", response);
+
+        return response;
     }
 
     public async Task<bool> DeleteCardAsync(int id)
@@ -63,8 +81,13 @@ public class CardService : ICardService
         if (card == null)
             return false;
 
+        var listItem = await _listItemRepository.GetByIdAsync(card.ListItemId);
+
         _repository.Delete(card);
         await _repository.SaveAsync();
+
+        await _hub.Clients.Group(listItem!.BoardId.ToString()).SendAsync("CardDeleted", id);
+
         return true;
     }
 }
