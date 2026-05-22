@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,6 +13,7 @@ public class BoardUsersController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet("board/{boardId}")]
     public async Task<IActionResult> GetUsersByBoard(int boardId)
     {
@@ -27,6 +29,7 @@ public class BoardUsersController : ControllerBase
         return Ok(boardUsers);
     }
 
+    [Authorize]
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetBoardsByUser(int userId)
     {
@@ -42,6 +45,7 @@ public class BoardUsersController : ControllerBase
         return Ok(boardUsers);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddUserToBoard([FromBody] CreateBoardUserRequest request)
     {
@@ -64,6 +68,7 @@ public class BoardUsersController : ControllerBase
         return Ok(boardUser);
     }
 
+    [Authorize]
     [HttpPut]
     public async Task<IActionResult> UpdateBoardUser(int userId, int boardId, [FromBody] UpdateBoardUserRequest request)
     {
@@ -78,6 +83,7 @@ public class BoardUsersController : ControllerBase
         return Ok(boardUser);
     }
 
+    [Authorize]
     [HttpDelete]
     public async Task<IActionResult> RemoveUserFromBoard(int userId, int boardId)
     {

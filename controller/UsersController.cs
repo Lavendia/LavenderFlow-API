@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,12 +14,23 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
         return Ok(await _context.Users.ToListAsync());
     }
 
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await _context.Users.FindAsync(userId);
+        return user is null ? NotFound() : Ok(user);
+    }
+
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
@@ -25,22 +38,7 @@ public class UsersController : ControllerBase
         return user is null ? NotFound() : Ok(user);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
-    {
-        var user = new User(request.Name, request.Email, request.Password);
-        _context.Users.Add(user);
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateException)
-        {
-            return Conflict("Email already exists.");
-        }
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
-    }
-
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request, int id)
     {
@@ -63,6 +61,7 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-public class WorkspacesUsers
+public class WorkspaceUser
 {
     public int Id { get; set; }
     public required int UserId { get; set; }
@@ -10,10 +10,10 @@ public class WorkspacesUsers
     public required Workspace Workspace { get; set; }
 
     public required int RoleId { get; set; }
-    public required WorkspacesRoles Role { get; set; }
+    public required WorkspaceRole Role { get; set; }
 
     [SetsRequiredMembers]
-    public WorkspacesUsers(int userId, int workspaceId, int roleId)
+    public WorkspaceUser(int userId, int workspaceId, int roleId)
     {
         UserId = userId;
         WorkspaceId = workspaceId;

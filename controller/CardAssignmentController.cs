@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,6 +13,7 @@ public class CardAssignmentsController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet("card/{cardId}")]
     public async Task<IActionResult> GetAssignmentsByCard(int cardId)
     {
@@ -26,6 +28,7 @@ public class CardAssignmentsController : ControllerBase
         return Ok(assignments);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateAssignment([FromBody] CreateCardAssignmentRequest request)
     {
@@ -41,6 +44,7 @@ public class CardAssignmentsController : ControllerBase
         return Ok(assignment);
     }
 
+    [Authorize]
     [HttpDelete]
     public async Task<IActionResult> DeleteAssignment(int userId, int cardId)
     {

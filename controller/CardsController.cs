@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,12 +13,14 @@ public class CardsController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetCards()
     {
         return Ok(await _context.Cards.ToListAsync());
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCard(int id)
     {
@@ -25,6 +28,7 @@ public class CardsController : ControllerBase
         return card is null ? NotFound() : Ok(card);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateCard([FromBody] CreateCardRequest request)
     {
@@ -38,6 +42,8 @@ public class CardsController : ControllerBase
         return CreatedAtAction(nameof(GetCard), new { id = card.Id }, card);
     }
 
+
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCard(int id, [FromBody] UpdateCardRequest request)
     {
@@ -62,6 +68,7 @@ public class CardsController : ControllerBase
         return Ok(card);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCard(int id)
     {

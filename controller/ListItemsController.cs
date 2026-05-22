@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,12 +13,14 @@ public class ListItemsController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetListItems()
     {
         return Ok(await _context.ListItems.ToListAsync());
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetListItem(int id)
     {
@@ -25,6 +28,7 @@ public class ListItemsController : ControllerBase
         return listItem is null ? NotFound() : Ok(listItem);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateListItem([FromBody] CreateListItemRequest request)
     {
@@ -38,6 +42,7 @@ public class ListItemsController : ControllerBase
         return CreatedAtAction(nameof(GetListItem), new { id = listItem.Id }, listItem);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateListItem(int id, [FromBody] UpdateListItemRequest request)
     {
@@ -51,6 +56,7 @@ public class ListItemsController : ControllerBase
         return Ok(listItem);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteListItem(int id)
     {

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,12 +13,14 @@ public class WorkspacesController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetWorkspaces()
     {
         return Ok(await _context.Workspaces.ToListAsync());
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetWorkspace(int id)
     {
@@ -25,6 +28,7 @@ public class WorkspacesController : ControllerBase
         return workspace is null ? NotFound() : Ok(workspace);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateWorkspace([FromBody] CreateWorkspaceRequest request)
     {
@@ -34,6 +38,7 @@ public class WorkspacesController : ControllerBase
         return CreatedAtAction(nameof(GetWorkspace), new { id = workspace.Id }, workspace);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateWorkspace([FromBody] UpdateWorkspaceRequest request, int id)
     {
@@ -48,6 +53,7 @@ public class WorkspacesController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteWorkspace(int id)
     {

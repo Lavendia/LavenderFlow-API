@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -11,6 +12,8 @@ public class WorkspaceUsersController : ControllerBase
     {
         _context = context;
     }
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetWorkspaceUsers(int workspaceId)
     {
@@ -24,12 +27,13 @@ public class WorkspaceUsersController : ControllerBase
             .Where(wu => wu.WorkspaceId == workspaceId)
             .Include(wu => wu.User)
             .Include(wu => wu.Role)
-            .Include(wu => wu.Workspace)  
+            .Include(wu => wu.Workspace)
             .ToListAsync();
 
         return Ok(workspaceUsers);
     }
-    
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateWorkspaceUser(int workspaceId, [FromBody] CreateWorkspaceUsersRequest request)
     {
@@ -45,13 +49,13 @@ public class WorkspaceUsersController : ControllerBase
             return NotFound("User not found.");
         }
 
-        var role = await _context.Roles.FindAsync(request.RoleId);
+        var role = await _context.WorkspaceRoles.FindAsync(request.RoleId);
         if (role == null)
         {
             return NotFound("Role not found.");
         }
 
-        var workspaceUser = new WorkspacesUsers(
+        var workspaceUser = new WorkspaceUser(
             userId: request.UserId,
             workspaceId: workspaceId,
             roleId: request.RoleId
@@ -63,13 +67,14 @@ public class WorkspaceUsersController : ControllerBase
         return CreatedAtAction(nameof(GetWorkspaceUser), new { id = workspaceUser.Id }, workspaceUser);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetWorkspaceUser(int id)
     {
         var workspaceUser = await _context.WorkspaceUsers
             .Include(wu => wu.User)
             .Include(wu => wu.Role)
-            .Include(wu => wu.Workspace)  
+            .Include(wu => wu.Workspace)
             .FirstOrDefaultAsync(wu => wu.Id == id);
 
         if (workspaceUser == null)

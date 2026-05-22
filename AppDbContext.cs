@@ -14,8 +14,8 @@ public class AppDbContext : DbContext
     public DbSet<Checklist> Checklists { get; set; }
     public DbSet<ChecklistItem> ChecklistItems { get; set; }
     public DbSet<CardAssignment> CardAssignments { get; set; }
-    public DbSet<WorkspacesRoles> Roles { get; set; }
-    public DbSet<WorkspacesUsers> WorkspaceUsers { get; set; }
+    public DbSet<WorkspaceRole> WorkspaceRoles { get; set; }
+    public DbSet<WorkspaceUser> WorkspaceUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

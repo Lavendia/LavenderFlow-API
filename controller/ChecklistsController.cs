@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,12 +13,14 @@ public class ChecklistsController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetChecklists()
     {
         return Ok(await _context.Checklists.Include(c => c.Items).ToListAsync());
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetChecklist(int id)
     {
@@ -27,6 +30,7 @@ public class ChecklistsController : ControllerBase
         return checklist is null ? NotFound() : Ok(checklist);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateChecklist([FromBody] CreateChecklistRequest request)
     {
@@ -39,6 +43,7 @@ public class ChecklistsController : ControllerBase
         return CreatedAtAction(nameof(GetChecklist), new { id = checklist.Id }, checklist);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateChecklist(int id, [FromBody] UpdateChecklistRequest request)
     {
@@ -51,6 +56,7 @@ public class ChecklistsController : ControllerBase
         return Ok(checklist);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteChecklist(int id)
     {
