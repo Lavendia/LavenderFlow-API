@@ -28,6 +28,45 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IBoardService, BoardService>();
+
+builder.Services.AddScoped<IBoardRoleRepository, BoardRoleRepository>();
+builder.Services.AddScoped<IBoardRoleService, BoardRoleService>();
+
+builder.Services.AddScoped<IBoardUserRepository, BoardUserRepository>();
+builder.Services.AddScoped<IBoardUserService, BoardUserService>();
+
+builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
+
+builder.Services.AddScoped<IWorkspaceRoleRepository, WorkspaceRoleRepository>();
+builder.Services.AddScoped<IWorkspaceRoleService, WorkspaceRoleService>();
+
+builder.Services.AddScoped<IWorkspaceUserRepository, WorkspaceUserRepository>();
+builder.Services.AddScoped<IWorkspaceUserService, WorkspaceUserService>();
+
+builder.Services.AddScoped<IListItemRepository, ListItemRepository>();
+builder.Services.AddScoped<IListItemService, ListItemService>();
+
+builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<ICardService, CardService>();
+
+builder.Services.AddScoped<IChecklistRepository, ChecklistRepository>();
+builder.Services.AddScoped<IChecklistService, ChecklistService>();
+
+builder.Services.AddScoped<IChecklistItemRepository, ChecklistItemRepository>();
+builder.Services.AddScoped<IChecklistItemService, ChecklistItemService>();
+
+builder.Services.AddScoped<ICardAssignmentRepository, CardAssignmentRepository>();
+builder.Services.AddScoped<ICardAssignmentService, CardAssignmentService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

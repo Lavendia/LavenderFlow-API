@@ -1,87 +1,38 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class WorkspaceUsersController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IWorkspaceUserService _service;
 
-    public WorkspaceUsersController(AppDbContext context)
+    public WorkspaceUsersController(IWorkspaceUserService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetWorkspaceUsers(int workspaceId)
     {
-        var workspace = await _context.Workspaces.FindAsync(workspaceId);
-        if (workspace == null)
-        {
-            return NotFound("Workspace not found.");
-        }
-
-        var workspaceUsers = await _context.WorkspaceUsers
-            .Where(wu => wu.WorkspaceId == workspaceId)
-            .Include(wu => wu.User)
-            .Include(wu => wu.Role)
-            .Include(wu => wu.Workspace)
-            .ToListAsync();
-
-        return Ok(workspaceUsers);
+        var workspaceUsers = await _service.GetWorkspaceUsersAsync(workspaceId);
+        return workspaceUsers is null ? NotFound("Workspace not found.") : Ok(workspaceUsers);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateWorkspaceUser(int workspaceId, [FromBody] CreateWorkspaceUsersRequest request)
     {
-        var workspace = await _context.Workspaces.FindAsync(workspaceId);
-        if (workspace == null)
-        {
-            return NotFound("Workspace not found.");
-        }
-
-        var user = await _context.Users.FindAsync(request.UserId);
-        if (user == null)
-        {
-            return NotFound("User not found.");
-        }
-
-        var role = await _context.WorkspaceRoles.FindAsync(request.RoleId);
-        if (role == null)
-        {
-            return NotFound("Role not found.");
-        }
-
-        var workspaceUser = new WorkspaceUser(
-            userId: request.UserId,
-            workspaceId: workspaceId,
-            roleId: request.RoleId
-        );
-
-        _context.WorkspaceUsers.Add(workspaceUser);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetWorkspaceUser), new { id = workspaceUser.Id }, new WorkspaceUserResponse(workspaceUser));
+        var workspaceUser = await _service.CreateWorkspaceUserAsync(workspaceId, request);
+        return Ok(workspaceUser);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetWorkspaceUser(int id)
     {
-        var workspaceUser = await _context.WorkspaceUsers
-            .Include(wu => wu.User)
-            .Include(wu => wu.Role)
-            .Include(wu => wu.Workspace)
-            .FirstOrDefaultAsync(wu => wu.Id == id);
-
-        if (workspaceUser == null)
-        {
-            return NotFound("Workspace user not found.");
-        }
-
-        return Ok(new WorkspaceUserResponse(workspaceUser));
+        var workspaceUser = await _service.GetWorkspaceUserAsync(id);
+        return workspaceUser is null ? NotFound("Workspace user not found.") : Ok(workspaceUser);
     }
 }

@@ -1,69 +1,56 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class ListItemsController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IListItemService _service;
 
-    public ListItemsController(AppDbContext context)
+    public ListItemsController(IListItemService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetListItems()
     {
-        return Ok((await _context.ListItems.ToListAsync()).Select(li => new ListItemResponse(li)));
+        return Ok(await _service.GetListItemsAsync());
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetListItem(int id)
     {
-        var listItem = await _context.ListItems.FindAsync(id);
-        return listItem is null ? NotFound() : Ok(new ListItemResponse(listItem));
+        var listItem = await _service.GetListItemAsync(id);
+        return listItem is null ? NotFound() : Ok(listItem);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateListItem([FromBody] CreateListItemRequest request)
     {
-        if (await _context.Boards.FindAsync(request.BoardId) is null)
-        {
-            return NotFound("Board does not exist with id " + request.BoardId);
-        }
-        var listItem = new ListItem(request.Name, request.Order, request.BoardId);
-        _context.ListItems.Add(listItem);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetListItem), new { id = listItem.Id }, new ListItemResponse(listItem));
+        var listItem = await _service.CreateListItemAsync(request);
+        return listItem is null
+            ? NotFound("Board does not exist with id " + request.BoardId)
+            : CreatedAtAction(nameof(GetListItem), new { id = listItem.Id }, listItem);
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateListItem(int id, [FromBody] UpdateListItemRequest request)
     {
-        var listItem = await _context.ListItems.FindAsync(id);
-        if (listItem is null) return NotFound();
-
-        if (request.Name is not null) listItem.Name = request.Name;
-        if (request.Order is not null) listItem.Order = request.Order.Value;
-
-        await _context.SaveChangesAsync();
-        return Ok(new ListItemResponse(listItem));
+        var listItem = await _service.UpdateListItemAsync(id, request);
+        return listItem is null ? NotFound() : Ok(listItem);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteListItem(int id)
     {
-        var listItem = await _context.ListItems.FindAsync(id);
-        if (listItem is null) return NotFound();
-        _context.ListItems.Remove(listItem);
-        await _context.SaveChangesAsync();
-        return NoContent();
+        return await _service.DeleteListItemAsync(id)
+            ? NoContent()
+            : NotFound();
     }
 }

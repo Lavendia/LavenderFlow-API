@@ -1,67 +1,53 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class WorkspacesController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IWorkspaceService _service;
 
-    public WorkspacesController(AppDbContext context)
+    public WorkspacesController(IWorkspaceService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetWorkspaces()
     {
-        return Ok((await _context.Workspaces.ToListAsync()).Select(w => new WorkspaceResponse(w)));
+        return Ok(await _service.GetWorkspacesAsync());
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetWorkspace(int id)
     {
-        var workspace = await _context.Workspaces.FindAsync(id);
-        return workspace is null ? NotFound() : Ok(new WorkspaceResponse(workspace));
+        var workspace = await _service.GetWorkspaceAsync(id);
+        return workspace is null ? NotFound() : Ok(workspace);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateWorkspace([FromBody] CreateWorkspaceRequest request)
     {
-        var workspace = new Workspace(request.Name, request.Description);
-        _context.Workspaces.Add(workspace);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetWorkspace), new { id = workspace.Id }, new WorkspaceResponse(workspace));
+        var workspace = await _service.CreateWorkspaceAsync(request);
+        return CreatedAtAction(nameof(GetWorkspace), new { id = workspace.Id }, workspace);
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateWorkspace([FromBody] UpdateWorkspaceRequest request, int id)
     {
-        var workspace = await _context.Workspaces.FindAsync(id);
-        if (workspace is null) return NotFound();
-
-        if (request.Name is not null) workspace.Name = request.Name;
-        if (request.Description is not null) workspace.Description = request.Description;
-        if (request.Public.HasValue) workspace.Public = request.Public.Value;
-
-        await _context.SaveChangesAsync();
-        return NoContent();
+        var updated = await _service.UpdateWorkspaceAsync(id, request);
+        return updated ? NoContent() : NotFound();
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteWorkspace(int id)
     {
-        var workspace = await _context.Workspaces.FindAsync(id);
-        if (workspace is null) return NotFound();
-
-        _context.Workspaces.Remove(workspace);
-        await _context.SaveChangesAsync();
-        return NoContent();
+        var deleted = await _service.DeleteWorkspaceAsync(id);
+        return deleted ? NoContent() : NotFound();
     }
 }
