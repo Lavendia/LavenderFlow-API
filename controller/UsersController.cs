@@ -18,7 +18,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        return Ok(await _context.Users.ToListAsync());
+        return Ok((await _context.Users.ToListAsync()).Select(u => new UserResponse(u)));
     }
 
     [Authorize]
@@ -27,7 +27,7 @@ public class UsersController : ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var user = await _context.Users.FindAsync(userId);
-        return user is null ? NotFound() : Ok(user);
+        return user is null ? NotFound() : Ok(new UserResponse(user));
     }
 
     [Authorize]
@@ -35,7 +35,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        return user is null ? NotFound() : Ok(user);
+        return user is null ? NotFound() : Ok(new UserResponse(user));
     }
 
     [Authorize]
@@ -58,7 +58,7 @@ public class UsersController : ControllerBase
             return Conflict("Email already exists.");
         }
 
-        return Ok(user);
+        return Ok(new UserResponse(user));
     }
 
     [Authorize]

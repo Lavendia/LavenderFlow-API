@@ -64,7 +64,7 @@ public class WorkspaceUsersController : ControllerBase
         _context.WorkspaceUsers.Add(workspaceUser);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetWorkspaceUser), new { id = workspaceUser.Id }, workspaceUser);
+        return CreatedAtAction(nameof(GetWorkspaceUser), new { id = workspaceUser.Id }, new WorkspaceUserResponse(workspaceUser));
     }
 
     [Authorize]
@@ -82,6 +82,6 @@ public class WorkspaceUsersController : ControllerBase
             return NotFound("Workspace user not found.");
         }
 
-        return Ok(workspaceUser);
+        return Ok(new WorkspaceUserResponse(workspaceUser));
     }
 }

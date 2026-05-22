@@ -19,7 +19,7 @@ public class WorkspaceRolesController : ControllerBase
     public async Task<IActionResult> GetWorkspaceRoles()
     {
         var roles = await _context.WorkspaceRoles.ToListAsync();
-        return Ok(roles);
+        return Ok(roles.Select(r => new WorkspaceRoleResponse(r)));
     }
 
     [Authorize]
@@ -29,6 +29,6 @@ public class WorkspaceRolesController : ControllerBase
         var role = new WorkspaceRole(request.Name);
         _context.WorkspaceRoles.Add(role);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetWorkspaceRoles), new { id = role.Id }, role);
+        return CreatedAtAction(nameof(GetWorkspaceRoles), new { id = role.Id }, new WorkspaceRoleResponse(role));
     }
 }

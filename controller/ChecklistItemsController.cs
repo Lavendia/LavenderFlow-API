@@ -18,7 +18,7 @@ public class ChecklistItemsController : ControllerBase
     public async Task<IActionResult> GetChecklistItem(int id)
     {
         var item = await _context.ChecklistItems.FindAsync(id);
-        return item is null ? NotFound() : Ok(item);
+        return item is null ? NotFound() : Ok(new ChecklistItemResponse(item));
     }
 
     [Authorize]
@@ -31,7 +31,7 @@ public class ChecklistItemsController : ControllerBase
         var item = new ChecklistItem(request.Name, false, request.ChecklistId);
         _context.ChecklistItems.Add(item);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetChecklistItem), new { id = item.Id }, item);
+        return CreatedAtAction(nameof(GetChecklistItem), new { id = item.Id }, new ChecklistItemResponse(item));
     }
 
     [Authorize]
@@ -45,7 +45,7 @@ public class ChecklistItemsController : ControllerBase
         if (request.Finished is not null) item.Finished = request.Finished.Value;
 
         await _context.SaveChangesAsync();
-        return Ok(item);
+        return Ok(new ChecklistItemResponse(item));
     }
 
     [Authorize]

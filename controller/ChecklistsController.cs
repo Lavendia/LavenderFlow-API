@@ -17,7 +17,7 @@ public class ChecklistsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetChecklists()
     {
-        return Ok(await _context.Checklists.Include(c => c.Items).ToListAsync());
+        return Ok((await _context.Checklists.Include(c => c.Items).ToListAsync()).Select(c => new ChecklistResponse(c)));
     }
 
     [Authorize]
@@ -27,7 +27,7 @@ public class ChecklistsController : ControllerBase
         var checklist = await _context.Checklists
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.Id == id);
-        return checklist is null ? NotFound() : Ok(checklist);
+        return checklist is null ? NotFound() : Ok(new ChecklistResponse(checklist));
     }
 
     [Authorize]
@@ -40,7 +40,7 @@ public class ChecklistsController : ControllerBase
         var checklist = new Checklist(request.Name, request.CardId);
         _context.Checklists.Add(checklist);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetChecklist), new { id = checklist.Id }, checklist);
+        return CreatedAtAction(nameof(GetChecklist), new { id = checklist.Id }, new ChecklistResponse(checklist));
     }
 
     [Authorize]
@@ -53,7 +53,7 @@ public class ChecklistsController : ControllerBase
         if (request.Name is not null) checklist.Name = request.Name;
 
         await _context.SaveChangesAsync();
-        return Ok(checklist);
+        return Ok(new ChecklistResponse(checklist));
     }
 
     [Authorize]

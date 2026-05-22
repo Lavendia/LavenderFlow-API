@@ -17,7 +17,7 @@ public class ListItemsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetListItems()
     {
-        return Ok(await _context.ListItems.ToListAsync());
+        return Ok((await _context.ListItems.ToListAsync()).Select(li => new ListItemResponse(li)));
     }
 
     [Authorize]
@@ -25,7 +25,7 @@ public class ListItemsController : ControllerBase
     public async Task<IActionResult> GetListItem(int id)
     {
         var listItem = await _context.ListItems.FindAsync(id);
-        return listItem is null ? NotFound() : Ok(listItem);
+        return listItem is null ? NotFound() : Ok(new ListItemResponse(listItem));
     }
 
     [Authorize]
@@ -39,7 +39,7 @@ public class ListItemsController : ControllerBase
         var listItem = new ListItem(request.Name, request.Order, request.BoardId);
         _context.ListItems.Add(listItem);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetListItem), new { id = listItem.Id }, listItem);
+        return CreatedAtAction(nameof(GetListItem), new { id = listItem.Id }, new ListItemResponse(listItem));
     }
 
     [Authorize]
@@ -53,7 +53,7 @@ public class ListItemsController : ControllerBase
         if (request.Order is not null) listItem.Order = request.Order.Value;
 
         await _context.SaveChangesAsync();
-        return Ok(listItem);
+        return Ok(new ListItemResponse(listItem));
     }
 
     [Authorize]

@@ -19,7 +19,7 @@ public class BoardRolesController : ControllerBase
     public async Task<IActionResult> GetBoardRoles()
     {
         var roles = await _context.BoardRoles.ToListAsync();
-        return Ok(roles);
+        return Ok(roles.Select(r => new BoardRoleResponse(r)));
     }
 
     [Authorize]
@@ -29,6 +29,6 @@ public class BoardRolesController : ControllerBase
         var role = new BoardRole(request.Name);
         _context.BoardRoles.Add(role);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetBoardRoles), new { id = role.Id }, role);
+        return CreatedAtAction(nameof(GetBoardRoles), new { id = role.Id }, new BoardRoleResponse(role));
     }
 }

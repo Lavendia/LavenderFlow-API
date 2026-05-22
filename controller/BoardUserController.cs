@@ -26,7 +26,7 @@ public class BoardUsersController : ControllerBase
             .Include(bu => bu.BoardRole)
             .ToListAsync();
 
-        return Ok(boardUsers);
+        return Ok(boardUsers.Select(bu => new BoardUserResponse(bu)));
     }
 
     [Authorize]
@@ -42,7 +42,7 @@ public class BoardUsersController : ControllerBase
             .Include(bu => bu.BoardRole)
             .ToListAsync();
 
-        return Ok(boardUsers);
+        return Ok(boardUsers.Select(bu => new BoardUserResponse(bu)));
     }
 
     [Authorize]
@@ -65,7 +65,7 @@ public class BoardUsersController : ControllerBase
         var boardUser = new BoardUser(request.UserId, request.BoardId, request.BoardRoleId);
         _context.BoardUsers.Add(boardUser);
         await _context.SaveChangesAsync();
-        return Ok(boardUser);
+        return Ok(new BoardUserResponse(boardUser));
     }
 
     [Authorize]

@@ -17,7 +17,7 @@ public class BoardsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetBoards()
     {
-        return Ok(await _context.Boards.ToListAsync());
+        return Ok((await _context.Boards.ToListAsync()).Select(b => new BoardResponse(b)));
     }
 
     [Authorize]
@@ -25,7 +25,7 @@ public class BoardsController : ControllerBase
     public async Task<IActionResult> GetBoard(int id)
     {
         var board = await _context.Boards.FindAsync(id);
-        return board is null ? NotFound() : Ok(board);
+        return board is null ? NotFound() : Ok(new BoardResponse(board));
     }
 
     [Authorize]
@@ -39,7 +39,7 @@ public class BoardsController : ControllerBase
         var board = new Board(request.Name, request.Description, request.WorkspaceId);
         _context.Boards.Add(board);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetBoard), new { id = board.Id }, board);
+        return CreatedAtAction(nameof(GetBoard), new { id = board.Id }, new BoardResponse(board));
     }
 
     [Authorize]
@@ -54,7 +54,7 @@ public class BoardsController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(board);
+        return Ok(new BoardResponse(board));
     }
 
     [Authorize]

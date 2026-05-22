@@ -17,7 +17,7 @@ public class CardsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCards()
     {
-        return Ok(await _context.Cards.ToListAsync());
+        return Ok((await _context.Cards.ToListAsync()).Select(c => new CardResponse(c)));
     }
 
     [Authorize]
@@ -25,7 +25,7 @@ public class CardsController : ControllerBase
     public async Task<IActionResult> GetCard(int id)
     {
         var card = await _context.Cards.FindAsync(id);
-        return card is null ? NotFound() : Ok(card);
+        return card is null ? NotFound() : Ok(new CardResponse(card));
     }
 
     [Authorize]
@@ -39,7 +39,7 @@ public class CardsController : ControllerBase
         var card = new Card(request.Name, request.Order, request.Description, false, request.Deadline, request.ListItemId);
         _context.Cards.Add(card);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetCard), new { id = card.Id }, card);
+        return CreatedAtAction(nameof(GetCard), new { id = card.Id }, new CardResponse(card));
     }
 
 
@@ -65,7 +65,7 @@ public class CardsController : ControllerBase
         if (request.ListItemId is not null) card.ListItemId = request.ListItemId.Value;
 
         await _context.SaveChangesAsync();
-        return Ok(card);
+        return Ok(new CardResponse(card));
     }
 
     [Authorize]
