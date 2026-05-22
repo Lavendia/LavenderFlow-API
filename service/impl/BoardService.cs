@@ -1,0 +1,60 @@
+public class BoardService : IBoardService
+{
+    private readonly IBoardRepository _repository;
+    private readonly IWorkspaceRepository _workspaceRepository;
+
+    public BoardService(
+        IBoardRepository repository,
+        IWorkspaceRepository workspaceRepository)
+    {
+        _repository = repository;
+        _workspaceRepository = workspaceRepository;
+    }
+
+    public async Task<IEnumerable<BoardResponse>> GetBoardsAsync()
+    {
+        var boards = await _repository.GetAllAsync();
+        return boards.Select(b => new BoardResponse(b));
+    }
+
+    public async Task<BoardResponse?> GetBoardAsync(int id)
+    {
+        var board = await _repository.GetByIdAsync(id);
+        return board == null ? null : new BoardResponse(board);
+    }
+
+    public async Task<BoardResponse?> CreateBoardAsync(CreateBoardRequest request)
+    {
+        if (await _workspaceRepository.GetByIdAsync(request.WorkspaceId) is null)
+            return null;
+
+        var board = new Board(request.Name, request.Description, request.WorkspaceId);
+        _repository.Add(board);
+        await _repository.SaveAsync();
+        return new BoardResponse(board);
+    }
+
+    public async Task<BoardResponse?> UpdateBoardAsync(int id, UpdateBoardRequest request)
+    {
+        var board = await _repository.GetByIdAsync(id);
+        if (board == null)
+            return null;
+
+        if (request.Name is not null) board.Name = request.Name;
+        if (request.Description is not null) board.Description = request.Description;
+
+        await _repository.SaveAsync();
+        return new BoardResponse(board);
+    }
+
+    public async Task<bool> DeleteBoardAsync(int id)
+    {
+        var board = await _repository.GetByIdAsync(id);
+        if (board == null)
+            return false;
+
+        _repository.Delete(board);
+        await _repository.SaveAsync();
+        return true;
+    }
+}

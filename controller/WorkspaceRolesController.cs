@@ -1,34 +1,29 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
-
 public class WorkspaceRolesController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IWorkspaceRoleService _service;
 
-    public WorkspaceRolesController(AppDbContext context)
+    public WorkspaceRolesController(IWorkspaceRoleService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetWorkspaceRoles()
     {
-        var roles = await _context.WorkspaceRoles.ToListAsync();
-        return Ok(roles.Select(r => new WorkspaceRoleResponse(r)));
+        return Ok(await _service.GetWorkspaceRolesAsync());
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateWorkspaceRole([FromBody] CreateWorkspaceRolesRequest request)
     {
-        var role = new WorkspaceRole(request.Name);
-        _context.WorkspaceRoles.Add(role);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetWorkspaceRoles), new { id = role.Id }, new WorkspaceRoleResponse(role));
+        var role = await _service.CreateWorkspaceRoleAsync(request);
+        return CreatedAtAction(nameof(GetWorkspaceRoles), new { id = role.Id }, role);
     }
 }
