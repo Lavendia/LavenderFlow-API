@@ -55,4 +55,10 @@ public class ChecklistService : IChecklistService
         await _repository.SaveAsync();
         return true;
     }
+
+    public async Task<IEnumerable<ChecklistResponse>> GetChecklistsByCardIdAsync(int cardId)
+    {
+        var checklists = await _repository.GetByCardIdAsync(cardId);
+        return checklists.Select(c => new ChecklistResponse(c));
+    }
 }

@@ -67,4 +67,10 @@ public class CardService : ICardService
         await _repository.SaveAsync();
         return true;
     }
+
+    public async Task<IEnumerable<CardResponse>> GetCardsByListIdAsync(int listId)
+    {
+        var cards = await _repository.GetByListIdAsync(listId);
+        return cards.Select(c => new CardResponse(c));
+    }
 }

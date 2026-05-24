@@ -42,4 +42,9 @@ public class ChecklistRepository : IChecklistRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<Checklist>> GetByCardIdAsync(int cardId)
+    {
+        return await _context.Checklists.Where(c => c.CardId == cardId).ToListAsync();
+    }
 }
