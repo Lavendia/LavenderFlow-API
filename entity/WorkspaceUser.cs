@@ -12,6 +12,8 @@ public class WorkspaceUser : BaseEntity
     public required int RoleId { get; set; }
     public required WorkspaceRole Role { get; set; }
 
+    public WorkspaceUser() {}
+
     [SetsRequiredMembers]
     public WorkspaceUser(int userId, int workspaceId, int roleId)
     {
