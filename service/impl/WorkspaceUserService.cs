@@ -26,9 +26,9 @@ public class WorkspaceUserService : IWorkspaceUserService
         return workspaceUsers.Select(wu => new WorkspaceUserResponse(wu));
     }
 
-    public async Task<WorkspaceUserResponse> CreateWorkspaceUserAsync(int workspaceId, CreateWorkspaceUsersRequest request)
+    public async Task<WorkspaceUserResponse> CreateWorkspaceUserAsync(CreateWorkspaceUserRequest request)
     {
-        if (await _workspaceRepository.GetByIdAsync(workspaceId) is null)
+        if (await _workspaceRepository.GetByIdAsync(request.WorkspaceId) is null)
             throw new KeyNotFoundException("Workspace not found.");
 
         if (await _userRepository.GetByIdAsync(request.UserId) is null)
@@ -37,7 +37,7 @@ public class WorkspaceUserService : IWorkspaceUserService
         if (await _workspaceRoleRepository.GetByIdAsync(request.RoleId) is null)
             throw new KeyNotFoundException("Role not found.");
 
-        var workspaceUser = new WorkspaceUser(request.UserId, workspaceId, request.RoleId);
+        var workspaceUser = new WorkspaceUser(request.UserId, request.WorkspaceId, request.RoleId);
         _repository.Add(workspaceUser);
         await _repository.SaveAsync();
         return new WorkspaceUserResponse(workspaceUser);
@@ -63,7 +63,7 @@ public class WorkspaceUserService : IWorkspaceUserService
         return true;
     }
 
-    public async Task<WorkspaceUserResponse?> UpdateWorkspaceUserAsync(int workspaceUserId, UpdateWorkspaceUsersRequest request)
+    public async Task<WorkspaceUserResponse?> UpdateWorkspaceUserAsync(int workspaceUserId, UpdateWorkspaceUserRequest request)
     {
         var workspaceUser = await _repository.GetByIdAsync(workspaceUserId);
         if (workspaceUser is null)

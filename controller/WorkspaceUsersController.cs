@@ -30,9 +30,9 @@ public class WorkspaceUsersController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateWorkspaceUser(int workspaceId, [FromBody] CreateWorkspaceUsersRequest request)
+    public async Task<IActionResult> CreateWorkspaceUser([FromBody] CreateWorkspaceUserRequest request)
     {
-        var workspaceUser = await _service.CreateWorkspaceUserAsync(workspaceId, request);
+        var workspaceUser = await _service.CreateWorkspaceUserAsync(request);
         return Ok(workspaceUser);
     }
 
@@ -46,7 +46,7 @@ public class WorkspaceUsersController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateWorkspaceUser(int id, [FromBody] UpdateWorkspaceUsersRequest request)
+    public async Task<IActionResult> UpdateWorkspaceUser(int id, [FromBody] UpdateWorkspaceUserRequest request)
     {
         var updatedWorkspaceUser = await _service.UpdateWorkspaceUserAsync(id, request);
         return updatedWorkspaceUser is null ? NotFound("Workspace user not found.") : Ok(updatedWorkspaceUser);
