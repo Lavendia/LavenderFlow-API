@@ -28,7 +28,7 @@ public class CardsController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("list/{id}")]
+    [HttpGet("list/{listId}")]
     public async Task<IActionResult> GetCardByListId(int listId)
     {
         var cards = await _service.GetCardsByListIdAsync(listId);

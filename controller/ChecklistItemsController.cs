@@ -21,10 +21,10 @@ public class ChecklistItemsController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("checklist/{id}")]
-    public async Task<IActionResult> GetChecklistItemsByChecklistId(int id)
+    [HttpGet("checklist/{checklistId}")]
+    public async Task<IActionResult> GetChecklistItemsByChecklistId(int checklistId)
     {
-        var items = await _service.GetChecklistItemsByChecklistIdAsync(id);
+        var items = await _service.GetChecklistItemsByChecklistIdAsync(checklistId);
         return Ok(items);
     }
 

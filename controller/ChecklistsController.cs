@@ -28,7 +28,7 @@ public class ChecklistsController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("card/{id}")]
+    [HttpGet("card/{cardId}")]
     public async Task<IActionResult> GetChecklistsByCardId(int cardId)
     {
         var checklists = await _service.GetChecklistsByCardIdAsync(cardId);

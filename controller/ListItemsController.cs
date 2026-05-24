@@ -28,10 +28,10 @@ public class ListItemsController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("board/{id}")]
-    public async Task<IActionResult> GetListItemsByBoard(int id)
+    [HttpGet("board/{boardId}")]
+    public async Task<IActionResult> GetListItemsByBoard(int boardId)
     {
-        var listItems = await _service.GetListItemsByBoardAsync(id);
+        var listItems = await _service.GetListItemsByBoardAsync(boardId);
         return Ok(listItems);
     }
 
