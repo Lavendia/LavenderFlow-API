@@ -33,4 +33,9 @@ public class ListItemRepository : IListItemRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<ListItem>> GetByBoardIdAsync(int boardId)
+    {
+        return await _context.ListItems.Where(li => li.BoardId == boardId).ToListAsync();
+    }
 }

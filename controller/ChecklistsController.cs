@@ -28,6 +28,14 @@ public class ChecklistsController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("card/{cardId}")]
+    public async Task<IActionResult> GetChecklistsByCardId(int cardId)
+    {
+        var checklists = await _service.GetChecklistsByCardIdAsync(cardId);
+        return checklists is null ? NotFound() : Ok(checklists);
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateChecklist([FromBody] CreateChecklistRequest request)
     {

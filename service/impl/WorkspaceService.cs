@@ -35,7 +35,7 @@ public class WorkspaceService : IWorkspaceService
 
         if (request.Name is not null) workspace.Name = request.Name;
         if (request.Description is not null) workspace.Description = request.Description;
-        if (request.Public.HasValue) workspace.Public = request.Public.Value;
+        if (request.IsPublic.HasValue) workspace.IsPublic = request.IsPublic.Value;
 
         await _repository.SaveAsync();
         return true;

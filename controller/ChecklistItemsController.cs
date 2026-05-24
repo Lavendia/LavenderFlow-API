@@ -21,6 +21,14 @@ public class ChecklistItemsController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("checklist/{checklistId}")]
+    public async Task<IActionResult> GetChecklistItemsByChecklistId(int checklistId)
+    {
+        var items = await _service.GetChecklistItemsByChecklistIdAsync(checklistId);
+        return Ok(items);
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateChecklistItem([FromBody] CreateChecklistItemRequest request)
     {

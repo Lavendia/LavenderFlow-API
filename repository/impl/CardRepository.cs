@@ -33,4 +33,9 @@ public class CardRepository : ICardRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<Card>> GetByListIdAsync(int listId)
+    {
+        return await _context.Cards.Where(c => c.ListItemId == listId).ToListAsync();
+    }
 }

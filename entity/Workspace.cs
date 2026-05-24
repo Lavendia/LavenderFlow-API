@@ -4,7 +4,7 @@ public class Workspace : BaseEntity
     public int Id {get; set;}
     public required string Name {get; set;}
     public string? Description {get; set;}
-    public bool Public {get; set;}
+    public bool IsPublic {get; set;}
     public List<Board> Boards {get; set;} = new();
 
     public Workspace() {}
@@ -14,7 +14,7 @@ public class Workspace : BaseEntity
     {
         Name = name;
         Description = description;
-        Public = isPublic;
+        IsPublic = isPublic;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }

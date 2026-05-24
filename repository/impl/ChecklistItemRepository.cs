@@ -28,4 +28,9 @@ public class ChecklistItemRepository : IChecklistItemRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<ChecklistItem>> GetByChecklistIdAsync(int checklistId)
+    {
+        return await _context.ChecklistItems.Where(item => item.ChecklistId == checklistId).ToListAsync();
+    }
 }

@@ -57,4 +57,10 @@ public class ListItemService : IListItemService
         await _repository.SaveAsync();
         return true;
     }
+
+    public async Task<IEnumerable<ListItemResponse>> GetListItemsByBoardAsync(int boardId)
+    {
+        var listItems = await _repository.GetByBoardIdAsync(boardId);
+        return listItems.Select(li => new ListItemResponse(li));
+    }
 }

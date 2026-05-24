@@ -90,4 +90,10 @@ public class CardService : ICardService
 
         return true;
     }
+
+    public async Task<IEnumerable<CardResponse>> GetCardsByListIdAsync(int listId)
+    {
+        var cards = await _repository.GetByListIdAsync(listId);
+        return cards.Select(c => new CardResponse(c));
+    }
 }

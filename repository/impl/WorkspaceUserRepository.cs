@@ -19,13 +19,13 @@ public class WorkspaceUserRepository : IWorkspaceUserRepository
             .ToListAsync();
     }
 
-    public async Task<WorkspaceUser?> GetByIdAsync(int id)
+    public async Task<WorkspaceUser?> GetByIdAsync(int workspaceUserId)
     {
         return await _context.WorkspaceUsers
             .Include(wu => wu.User)
             .Include(wu => wu.Role)
             .Include(wu => wu.Workspace)
-            .FirstOrDefaultAsync(wu => wu.Id == id);
+            .FirstOrDefaultAsync(wu => wu.Id == workspaceUserId);
     }
 
     public void Add(WorkspaceUser workspaceUser)
@@ -36,5 +36,25 @@ public class WorkspaceUserRepository : IWorkspaceUserRepository
     public async Task SaveAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<WorkspaceUser>> GetByUserIdAsync(int userId)
+    {
+        return await _context.WorkspaceUsers
+            .Where(wu => wu.UserId == userId)
+            .Include(wu => wu.User)
+            .Include(wu => wu.Role)
+            .Include(wu => wu.Workspace)
+            .ToListAsync();
+    }
+
+    public async Task<bool> ExistsAsync(int workspaceUserId)
+    {
+        return await _context.WorkspaceUsers.AnyAsync(wu => wu.Id == workspaceUserId);
+    }
+
+    public void Delete(WorkspaceUser workspaceUser)
+    {
+        _context.WorkspaceUsers.Remove(workspaceUser);
     }
 }

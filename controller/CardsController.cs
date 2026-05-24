@@ -28,6 +28,14 @@ public class CardsController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("list/{listId}")]
+    public async Task<IActionResult> GetCardByListId(int listId)
+    {
+        var cards = await _service.GetCardsByListIdAsync(listId);
+        return cards is null ? NotFound() : Ok(cards);
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateCard([FromBody] CreateCardRequest request)
     {

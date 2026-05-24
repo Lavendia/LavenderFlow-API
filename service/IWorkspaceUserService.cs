@@ -1,6 +1,9 @@
 public interface IWorkspaceUserService
 {
-    Task<IEnumerable<WorkspaceUserResponse>?> GetWorkspaceUsersAsync(int workspaceId);
-    Task<WorkspaceUserResponse> CreateWorkspaceUserAsync(int workspaceId, CreateWorkspaceUsersRequest request);
-    Task<WorkspaceUserResponse?> GetWorkspaceUserAsync(int id);
+    Task<IEnumerable<WorkspaceUserResponse>?> GetUsersByWorkspaceAsync(int workspaceId);
+    Task<IEnumerable<WorkspaceUserResponse>> GetWorkspacesByUserAsync(int userId);
+    Task<WorkspaceUserResponse> CreateWorkspaceUserAsync(CreateWorkspaceUserRequest request);
+    Task<WorkspaceUserResponse?> UpdateWorkspaceUserAsync(int workspaceUserId, UpdateWorkspaceUserRequest request);
+    Task<WorkspaceUserResponse?> GetWorkspaceUserAsync(int workspaceUserId);
+    Task<bool> RemoveUserFromWorkspaceAsync(int workspaceUserId);
 }
