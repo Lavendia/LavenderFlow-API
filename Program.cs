@@ -84,6 +84,12 @@ builder.Services.AddScoped<ICardAssignmentService, CardAssignmentService>();
 builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 builder.Services.AddScoped<IChatMessageService, ChatMessageService>();
 
+builder.Services.AddScoped<ILabelRepository, LabelRepository>();
+builder.Services.AddScoped<ILabelService, LabelService>();
+
+builder.Services.AddScoped<ICardLabelRepository, CardLabelRepository>();
+builder.Services.AddScoped<ICardLabelService, CardLabelService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

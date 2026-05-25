@@ -20,6 +20,15 @@ public static class Seeder
             );
         }
 
+        if (!context.Labels.Any())
+        {
+            context.Labels.AddRange(
+                new Label("High", "#EF4444"),
+                new Label("Medium", "#FBBF24"),
+                new Label("Low", "#10B981")
+            );
+        }
+
         await context.SaveChangesAsync();
     }
 }

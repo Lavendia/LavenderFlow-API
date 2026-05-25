@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
     public DbSet<WorkspaceRole> WorkspaceRoles { get; set; }
     public DbSet<WorkspaceUser> WorkspaceUsers { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Label> Labels { get; set; }
+    public DbSet<CardLabel> CardLabels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,6 +99,21 @@ public class AppDbContext : DbContext
             .HasOne(cm => cm.User)
             .WithMany()
             .HasForeignKey(cm => cm.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardLabel>()
+            .HasKey(cl => new { cl.CardId, cl.LabelId });
+
+        modelBuilder.Entity<CardLabel>()
+            .HasOne(cl => cl.Card)
+            .WithMany()
+            .HasForeignKey(cl => cl.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CardLabel>()
+            .HasOne(cl => cl.Label)
+            .WithMany()
+            .HasForeignKey(cl => cl.LabelId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 
