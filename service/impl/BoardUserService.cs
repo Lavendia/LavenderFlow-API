@@ -1,20 +1,25 @@
+using Microsoft.AspNetCore.SignalR;
+
 public class BoardUserService : IBoardUserService
 {
     private readonly IBoardUserRepository _repository;
     private readonly IBoardRepository _boardRepository;
     private readonly IUserRepository _userRepository;
     private readonly IBoardRoleRepository _boardRoleRepository;
+    private readonly IHubContext<LavenderFlowHub> _hub;
 
     public BoardUserService(
         IBoardUserRepository repository,
         IBoardRepository boardRepository,
         IUserRepository userRepository,
-        IBoardRoleRepository boardRoleRepository)
+        IBoardRoleRepository boardRoleRepository,
+        IHubContext<LavenderFlowHub> hub)
     {
         _repository = repository;
         _boardRepository = boardRepository;
         _userRepository = userRepository;
         _boardRoleRepository = boardRoleRepository;
+        _hub = hub;
     }
 
     public async Task<IEnumerable<BoardUserResponse>> GetUsersByBoardAsync(int boardId)
@@ -52,7 +57,11 @@ public class BoardUserService : IBoardUserService
         var boardUser = new BoardUser(request.UserId, request.BoardId, request.BoardRoleId);
         _repository.Add(boardUser);
         await _repository.SaveAsync();
-        return new BoardUserResponse(boardUser);
+        var response = new BoardUserResponse(boardUser);
+
+        await _hub.Clients.Group(request.BoardId.ToString()).SendAsync("UserAddedToBoard", response);
+
+        return response;
     }
 
     public async Task<BoardUserResponse?> UpdateBoardUserAsync(int userId, int boardId, UpdateBoardUserRequest request)
@@ -66,7 +75,11 @@ public class BoardUserService : IBoardUserService
 
         boardUser.BoardRoleId = request.BoardRoleId;
         await _repository.SaveAsync();
-        return new BoardUserResponse(boardUser);
+        var response = new BoardUserResponse(boardUser);
+
+        await _hub.Clients.Group(boardId.ToString()).SendAsync("BoardUserUpdated", response);
+
+        return response;
     }
 
     public async Task<bool> RemoveUserFromBoardAsync(int userId, int boardId)
@@ -77,6 +90,9 @@ public class BoardUserService : IBoardUserService
 
         _repository.Delete(boardUser);
         await _repository.SaveAsync();
+
+        await _hub.Clients.Group(boardId.ToString()).SendAsync("UserRemovedFromBoard", userId);
+
         return true;
     }
 }

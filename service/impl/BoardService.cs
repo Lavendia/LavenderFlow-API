@@ -1,14 +1,19 @@
+using Microsoft.AspNetCore.SignalR;
+
 public class BoardService : IBoardService
 {
     private readonly IBoardRepository _repository;
     private readonly IWorkspaceRepository _workspaceRepository;
+    private readonly IHubContext<LavenderFlowHub> _hub;
 
     public BoardService(
         IBoardRepository repository,
-        IWorkspaceRepository workspaceRepository)
+        IWorkspaceRepository workspaceRepository,
+        IHubContext<LavenderFlowHub> hub)
     {
         _repository = repository;
         _workspaceRepository = workspaceRepository;
+        _hub = hub;
     }
 
     public async Task<IEnumerable<BoardResponse>> GetBoardsAsync()
@@ -31,7 +36,11 @@ public class BoardService : IBoardService
         var board = new Board(request.Name, request.Description, request.WorkspaceId);
         _repository.Add(board);
         await _repository.SaveAsync();
-        return new BoardResponse(board);
+        var response = new BoardResponse(board);
+
+        await _hub.Clients.Group(board.Id.ToString()).SendAsync("BoardCreated", response);
+
+        return response;
     }
 
     public async Task<BoardResponse?> UpdateBoardAsync(int id, UpdateBoardRequest request)
@@ -44,7 +53,11 @@ public class BoardService : IBoardService
         if (request.Description is not null) board.Description = request.Description;
 
         await _repository.SaveAsync();
-        return new BoardResponse(board);
+        var response = new BoardResponse(board);
+
+        await _hub.Clients.Group(board.Id.ToString()).SendAsync("BoardUpdated", response);
+
+        return response;
     }
 
     public async Task<bool> DeleteBoardAsync(int id)
@@ -55,6 +68,9 @@ public class BoardService : IBoardService
 
         _repository.Delete(board);
         await _repository.SaveAsync();
+
+        await _hub.Clients.Group(id.ToString()).SendAsync("BoardDeleted", id);
+
         return true;
     }
 }

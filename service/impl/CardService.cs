@@ -71,7 +71,6 @@ public class CardService : ICardService
         var response = new CardResponse(card);
         listItem ??= await _listItemRepository.GetByIdAsync(card.ListItemId);
         await _hub.Clients.Group(listItem!.BoardId.ToString()).SendAsync("CardUpdated", response);
-
         return response;
     }
 
