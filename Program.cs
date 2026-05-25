@@ -81,6 +81,9 @@ builder.Services.AddScoped<IChecklistItemService, ChecklistItemService>();
 builder.Services.AddScoped<ICardAssignmentRepository, CardAssignmentRepository>();
 builder.Services.AddScoped<ICardAssignmentService, CardAssignmentService>();
 
+builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+builder.Services.AddScoped<IChatMessageService, ChatMessageService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

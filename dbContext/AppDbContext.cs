@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<CardAssignment> CardAssignments { get; set; }
     public DbSet<WorkspaceRole> WorkspaceRoles { get; set; }
     public DbSet<WorkspaceUser> WorkspaceUsers { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,6 +85,18 @@ public class AppDbContext : DbContext
             .HasOne(ci => ci.Checklist)
             .WithMany(c => c.Items)
             .HasForeignKey(ci => ci.ChecklistId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChatMessage>()
+            .HasOne(cm => cm.Card)
+            .WithMany()
+            .HasForeignKey(cm => cm.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChatMessage>()
+            .HasOne(cm => cm.User)
+            .WithMany()
+            .HasForeignKey(cm => cm.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 

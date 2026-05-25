@@ -35,6 +35,20 @@ public class UsersController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("email")]
+    public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return BadRequest("Email is required.");
+
+        var user = await _userService.GetUserByEmailAsync(email);
+        if (user == null)
+            return NotFound($"No user found with email '{email}'.");
+
+        return Ok(user);
+    }
+
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {

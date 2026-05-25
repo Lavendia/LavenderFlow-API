@@ -65,7 +65,7 @@ public class CardService : ICardService
         if (request.Order is not null) card.Order = request.Order.Value;
         if (request.Description is not null) card.Description = request.Description;
         if (request.Archived is not null) card.Archived = request.Archived.Value;
-        if (request.Deadline is not null) card.Deadline = request.Deadline.Value;
+        card.Deadline = request.Deadline;
         await _repository.SaveAsync();
 
         var response = new CardResponse(card);

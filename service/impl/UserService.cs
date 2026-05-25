@@ -23,6 +23,16 @@ public class UserService : IUserService
             : new UserResponse(user);
     }
 
+    public async Task<UserResponse?> GetUserByEmailAsync(string email)
+    {
+        var user = await _repository.GetUserByEmailAsync(email);
+        if (user == null) return null;
+
+        return user == null
+            ? null
+            : new UserResponse(user);
+    }
+
     public async Task<UserResponse?> UpdateUserAsync(
         int id,
         UpdateUserRequest request)
