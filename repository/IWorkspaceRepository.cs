@@ -4,5 +4,6 @@ public interface IWorkspaceRepository
     Task<Workspace?> GetByIdAsync(int id);
     void Add(Workspace workspace);
     void Delete(Workspace workspace);
+    Task<List<Board>?> GetBoardsByWorkspaceAsync(int id);
     Task SaveAsync();
 }

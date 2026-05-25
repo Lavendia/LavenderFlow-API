@@ -28,6 +28,14 @@ public class WorkspacesController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("{id}/boards")]
+    public async Task<IActionResult> GetBoardsByWorkspace(int id)
+    {
+        var boards = await _service.GetBoardsByWorkspaceAsync(id);
+        return boards is null ? NotFound() : Ok(boards);
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateWorkspace([FromBody] CreateWorkspaceRequest request)
     {

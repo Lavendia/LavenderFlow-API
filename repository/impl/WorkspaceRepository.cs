@@ -29,6 +29,12 @@ public class WorkspaceRepository : IWorkspaceRepository
         _context.Workspaces.Remove(workspace);
     }
 
+    public async Task<List<Board>?> GetBoardsByWorkspaceAsync(int id)
+    {
+        var workspace = await _context.Workspaces.FindAsync(id);
+        if (workspace == null) return null;
+        return await _context.Boards.Where(b => b.WorkspaceId == id).ToListAsync();
+    }
     public async Task SaveAsync()
     {
         await _context.SaveChangesAsync();

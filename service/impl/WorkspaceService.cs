@@ -41,6 +41,12 @@ public class WorkspaceService : IWorkspaceService
         return true;
     }
 
+    public async Task<IEnumerable<BoardResponse>?> GetBoardsByWorkspaceAsync(int id)
+    {
+        var boards = await _repository.GetBoardsByWorkspaceAsync(id);
+        return boards == null ? null : boards.Select(b => new BoardResponse(b));
+    }
+
     public async Task<bool> DeleteWorkspaceAsync(int id)
     {
         var workspace = await _repository.GetByIdAsync(id);
