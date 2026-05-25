@@ -1,14 +1,22 @@
+using Microsoft.AspNetCore.SignalR;
+
 public class ChecklistService : IChecklistService
 {
     private readonly IChecklistRepository _repository;
     private readonly ICardRepository _cardRepository;
+    private readonly IListItemRepository _listItemRepository;
+    private readonly IHubContext<LavenderFlowHub> _hub;
 
     public ChecklistService(
         IChecklistRepository repository,
-        ICardRepository cardRepository)
+        ICardRepository cardRepository,
+        IListItemRepository listItemRepository,
+        IHubContext<LavenderFlowHub> hub)
     {
         _repository = repository;
         _cardRepository = cardRepository;
+        _listItemRepository = listItemRepository;
+        _hub = hub;
     }
 
     public async Task<IEnumerable<ChecklistResponse>> GetChecklistsAsync()
@@ -25,13 +33,22 @@ public class ChecklistService : IChecklistService
 
     public async Task<ChecklistResponse?> CreateChecklistAsync(CreateChecklistRequest request)
     {
-        if (await _cardRepository.GetByIdAsync(request.CardId) is null)
+        var card = await _cardRepository.GetByIdAsync(request.CardId);
+        if (card is null)
             return null;
 
         var checklist = new Checklist(request.Name, request.CardId);
         _repository.Add(checklist);
         await _repository.SaveAsync();
-        return new ChecklistResponse(checklist);
+        var response = new ChecklistResponse(checklist);
+
+        var listItem = await _listItemRepository.GetByIdAsync(card.ListItemId);
+        if (listItem != null)
+        {
+            await _hub.Clients.Group(listItem.BoardId.ToString()).SendAsync("ChecklistCreated", response);
+        }
+
+        return response;
     }
 
     public async Task<ChecklistResponse?> UpdateChecklistAsync(int id, UpdateChecklistRequest request)
@@ -42,7 +59,19 @@ public class ChecklistService : IChecklistService
 
         if (request.Name is not null) checklist.Name = request.Name;
         await _repository.SaveAsync();
-        return new ChecklistResponse(checklist);
+        var response = new ChecklistResponse(checklist);
+
+        var card = await _cardRepository.GetByIdAsync(checklist.CardId);
+        if (card != null)
+        {
+            var listItem = await _listItemRepository.GetByIdAsync(card.ListItemId);
+            if (listItem != null)
+            {
+                await _hub.Clients.Group(listItem.BoardId.ToString()).SendAsync("ChecklistUpdated", response);
+            }
+        }
+
+        return response;
     }
 
     public async Task<bool> DeleteChecklistAsync(int id)
@@ -51,8 +80,19 @@ public class ChecklistService : IChecklistService
         if (checklist == null)
             return false;
 
+        var card = await _cardRepository.GetByIdAsync(checklist.CardId);
         _repository.Delete(checklist);
         await _repository.SaveAsync();
+
+        if (card != null)
+        {
+            var listItem = await _listItemRepository.GetByIdAsync(card.ListItemId);
+            if (listItem != null)
+            {
+                await _hub.Clients.Group(listItem.BoardId.ToString()).SendAsync("ChecklistDeleted", id);
+            }
+        }
+
         return true;
     }
 
