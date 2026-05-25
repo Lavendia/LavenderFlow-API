@@ -14,6 +14,16 @@ public class WorkspaceRepository : IWorkspaceRepository
         return await _context.Workspaces.ToListAsync();
     }
 
+    public async Task<List<Workspace>> GetByUserIdAsync(int userId)
+    {
+        return await (
+            from membership in _context.WorkspaceUsers
+            join workspace in _context.Workspaces on membership.WorkspaceId equals workspace.Id
+            where membership.UserId == userId
+            select workspace
+        ).Distinct().ToListAsync();
+    }
+
     public async Task<Workspace?> GetByIdAsync(int id)
     {
         return await _context.Workspaces.FindAsync(id);
