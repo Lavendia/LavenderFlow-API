@@ -48,6 +48,12 @@ public class WorkspaceUserRepository : IWorkspaceUserRepository
             .ToListAsync();
     }
 
+    public async Task<bool> UserBelongsToWorkspaceAsync(int userId, int workspaceId)
+    {
+        return await _context.WorkspaceUsers.AnyAsync(wu =>
+            wu.UserId == userId && wu.WorkspaceId == workspaceId);
+    }
+
     public async Task<bool> ExistsAsync(int workspaceUserId)
     {
         return await _context.WorkspaceUsers.AnyAsync(wu => wu.Id == workspaceUserId);
