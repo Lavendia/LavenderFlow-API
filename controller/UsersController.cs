@@ -1,75 +1,85 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IUserService _userService;
 
-    public UsersController(AppDbContext context)
+    public UsersController(IUserService userService)
     {
-        _context = context;
+        _userService = userService;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        return Ok(await _context.Users.ToListAsync());
+        return Ok(await _userService.GetUsersAsync());
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser(int id)
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUser()
     {
-        var user = await _context.Users.FindAsync(id);
-        return user is null ? NotFound() : Ok(user);
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdValue) || !int.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _userService.GetUserAsync(userId);
+        return user == null ? NotFound() : Ok(user);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
+    [Authorize]
+    [HttpGet("email")]
+    public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
     {
-        var user = new User(request.Name, request.Email, request.Password);
-        _context.Users.Add(user);
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateException)
-        {
-            return Conflict("Email already exists.");
-        }
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
-    }
+        if (string.IsNullOrWhiteSpace(email))
+            return BadRequest("Email is required.");
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request, int id)
-    {
-        var user = await _context.Users.FindAsync(id);
-        if (user is null) return NotFound();
-
-        if (request.Name is not null) user.Name = request.Name;
-        if (request.Email is not null) user.Email = request.Email;
-        if (request.Password is not null) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateException)
-        {
-            return Conflict("Email already exists.");
-        }
+        var user = await _userService.GetUserByEmailAsync(email);
+        if (user == null)
+            return NotFound($"No user found with email '{email}'.");
 
         return Ok(user);
     }
 
+    [Authorize]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        var user = await _userService.GetUserAsync(id);
+
+        return user == null
+            ? NotFound()
+            : Ok(user);
+    }
+
+    [Authorize]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUser(
+        [FromBody] UpdateUserRequest request,
+        int id)
+    {
+        var user = await _userService.UpdateUserAsync(id, request);
+
+        return user == null
+            ? NotFound()
+            : Ok(user);
+    }
+
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user is null) return NotFound();
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-        return NoContent();
+        var deleted = await _userService.DeleteUserAsync(id);
+
+        return deleted
+            ? NoContent()
+            : NotFound();
     }
 }
