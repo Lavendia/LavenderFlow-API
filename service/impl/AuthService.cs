@@ -66,7 +66,7 @@ public class AuthService : IAuthService
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(
-                Environment.GetEnvironmentVariable("Jwt__Key")!));
+                Environment.GetEnvironmentVariable("JWT_SECRET")!));
 
         var creds = new SigningCredentials(
             key,
@@ -74,10 +74,10 @@ public class AuthService : IAuthService
 
         var token = new JwtSecurityToken(
             issuer:
-                Environment.GetEnvironmentVariable("Jwt__Issuer"),
+                Environment.GetEnvironmentVariable("JWT_ISSUER"),
 
             audience:
-                Environment.GetEnvironmentVariable("Jwt__Audience"),
+                Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
 
             claims: claims,
             expires: DateTime.UtcNow.AddDays(7),
